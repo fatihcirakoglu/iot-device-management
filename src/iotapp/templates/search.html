@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block title %} LetsColearn {% endblock title %} 
+{% block content %} {% include "header.html" %} {% include "description.html" %}
+<h1 class="title" style="padding-left: 3rem;">Search results :</h1>
+<div class="blogs">
+  {% for course in course_list %}
+  <article class="blog">
+    <h3 class="title">{{ course.title }}</h3>
+    <p class="author">{{ course.author }} | {{ course.created_on }}</p>
+    <a href="{% url 'course_detail' course.slug %}" class="button"
+      >Goto Space &rarr;</a
+    >
+  </article>
+  {% endfor %}
+</div>
+{% if course_list.has_previous or course_list.has_next %}
+<nav class="pagination">
+  <ul>
+    {% if course_list.has_previous %}
+    <li><a href="?page={{ course_list.previous_page_number }}">&laquo;</a></li>
+    {% endif %}
+    <li>{{ course_list.number }}</li>
+    {% if course_list.has_next %}
+    <li><a href="?page={{ course_list.next_page_number }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %} {% endblock content %}

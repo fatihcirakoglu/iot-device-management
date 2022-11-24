@@ -1,0 +1,51 @@
+{% extends "base.html" %} {% block title %} LetsColearn {% endblock title %} 
+{% block content %} {% include "header.html" %} {% include "description.html" %}
+<div class="blogs">
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+  getCourses();
+  function getCourses(page = 1){
+    $.ajax({
+      type: "POST",
+      url: "/fetch_course",
+      data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        page: page,
+      },
+      success: (data) => {
+        page = JSON.parse(data.course_list);
+        $(".blogs").empty();
+        $(".pagination").remove();
+        for (let course of page.courses){
+          let blog = $("<article></article>").addClass("blog");
+          blog.append($("<h3></h3").addClass("title").text(course.title));
+          blog.append($("<h3></h3").addClass("image").text(course.image));
+          blog.append($("<p></p>").addClass("author").text(`${course.author} | ${new Date(course.created_on).toLocaleString()}`));
+          blog.append($("<a></a>").addClass("button").text("Read More  →").attr("href", `/coursedetail/${course.slug}`));
+          $(".blogs").append(blog);
+        }
+        if (page.has_previous || page.has_next){
+          let nav = $("<nav></nav>").addClass("pagination");
+          let ul = $("<ul></ul>")
+          nav.append(ul);
+          if (page.has_previous){
+            ul.append($("<li></li>").append($("<button></button>").addClass("pagination-btn").attr("id", "prev-btn").text("»")));
+          }
+          ul.append($("<li></li>").addClass("text").text(page.number));
+          if (page.has_next){
+            ul.append($("<li></li>").append($("<button></button>").addClass("pagination-btn").attr("id", "next-btn").text("»")));
+          }
+          $(".blogs").after(nav);
+          $("#next-btn").on("click", function(){
+            getCourses(parseInt($(".text").text()) + 1)
+          })
+          $("#prev-btn").on("click", function(){
+            getCourses(parseInt($(".text").text()) - 1)
+          })
+        }
+      }
+    })
+  }
+</script>
+{% endblock content %}
