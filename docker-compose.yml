@@ -6,6 +6,7 @@ services:
     command: >
       sh -c "python3 manage.py makemigrations && \
              python3 manage.py migrate && \
+             python manage.py collectstatic --noinput && \
              python3 manage.py runserver 0.0.0.0:8000"
     environment:
       - SECRETKEY=&w!-%qsbcb_7kdo^)roirk)evgkhu1vn(e8tztam-*+n1b#)=2
@@ -19,7 +20,6 @@ services:
       - EMAIL_HOST_PASSWORD=IHJvrNcO6jYPZqGn
     ports:
       - "80:8000"
-
     volumes:
       - ./src:/app
       - /var/run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock

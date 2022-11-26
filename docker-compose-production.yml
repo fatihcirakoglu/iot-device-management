@@ -33,5 +33,5 @@ services:
     ports:
       - 1883:1883
       - 9001:9001
-    volumes:
-      data: ~
+volumes:
+  data: ~
