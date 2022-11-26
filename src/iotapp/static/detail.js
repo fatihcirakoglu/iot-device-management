@@ -4,11 +4,11 @@ function toggle() {
     if (btn.classList.contains("button-green")) {
       btn.classList.remove("button-green");
       btn.classList.add("button-red");
-      btn.innerHTML = "Quit Space";
+      btn.innerHTML = "UnFollow";
     } else {
       btn.classList.remove("button-red");
       btn.classList.add("button-green");
-      btn.innerHTML = "Join Space";
+      btn.innerHTML = "Follow";
     }
   }
 }

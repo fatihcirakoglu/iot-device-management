@@ -44,12 +44,12 @@
     <br>
     {% if user.is_authenticated %} 
       {% if not device_in_favorites %}
-        <a class="button button-green"  onclick="toggle()" data-slug="{{ device.slug }}">Add FAV</a>
+        <a class="button button-green"  onclick="toggle()" data-slug="{{ device.slug }}">Follow</a>
       {% else %}
-        <a class="button button-red"  id="del" onclick="toggle()" data-slug="{{ device.slug }}">Remove FAV</a>
+        <a class="button button-red"  id="del" onclick="toggle()" data-slug="{{ device.slug }}">UnFollow</a>
       {% endif %} 
     {% else %}
-      <a class="button button-green"  href="{% url 'login' %}">Add to FAV</a>
+      <a class="button button-green"  href="{% url 'login' %}">Follow</a>
     {% endif %}
 
     {% if user.is_authenticated %} 
