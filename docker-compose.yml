@@ -23,3 +23,15 @@ services:
     volumes:
       - ./src:/app
       - /var/run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mqttconf/config/:/mosquitto/config/:ro
+      - ./mqttconf/log/:/mosquitto/log/
+      - data:/mosquitto/data/
+    ports:
+      - 1883:1883
+      - 9001:9001
+volumes:
+  data: ~
