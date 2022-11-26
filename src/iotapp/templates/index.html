@@ -1,28 +1,28 @@
-{% extends "base.html" %} {% block title %} LetsColearn {% endblock title %} 
+{% extends "base.html" %} {% block title %} IOT Device Manager {% endblock title %} 
 {% block content %} {% include "header.html" %} {% include "description.html" %}
 <div class="blogs">
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script>
-  getCourses();
-  function getCourses(page = 1){
+  getDevices();
+  function getDevices(page = 1){
     $.ajax({
       type: "POST",
-      url: "/fetch_course",
+      url: "/fetch_device",
       data: {
         csrfmiddlewaretoken: '{{ csrf_token }}',
         page: page,
       },
       success: (data) => {
-        page = JSON.parse(data.course_list);
+        page = JSON.parse(data.device_list);
         $(".blogs").empty();
         $(".pagination").remove();
-        for (let course of page.courses){
+        for (let device of page.devices){
           let blog = $("<article></article>").addClass("blog");
-          blog.append($("<h3></h3").addClass("title").text(course.title));
-          blog.append($("<h3></h3").addClass("image").text(course.image));
-          blog.append($("<p></p>").addClass("author").text(`${course.author} | ${new Date(course.created_on).toLocaleString()}`));
-          blog.append($("<a></a>").addClass("button").text("Read More  →").attr("href", `/coursedetail/${course.slug}`));
+          blog.append($("<h3></h3").addClass("title").text(device.title));
+          blog.append($("<h3></h3").addClass("image").text(device.image));
+          blog.append($("<p></p>").addClass("author").text(`${device.author} | ${new Date(device.created_on).toLocaleString()}`));
+          blog.append($("<a></a>").addClass("button").text("Read More  →").attr("href", `/devicedetail/${device.slug}`));
           $(".blogs").append(blog);
         }
         if (page.has_previous || page.has_next){
@@ -38,10 +38,10 @@
           }
           $(".blogs").after(nav);
           $("#next-btn").on("click", function(){
-            getCourses(parseInt($(".text").text()) + 1)
+            getDevices(parseInt($(".text").text()) + 1)
           })
           $("#prev-btn").on("click", function(){
-            getCourses(parseInt($(".text").text()) - 1)
+            getDevices(parseInt($(".text").text()) - 1)
           })
         }
       }
