@@ -22,7 +22,7 @@
           blog.append($("<h3></h3").addClass("title").text(device.title));
           blog.append($("<h3></h3").addClass("image").text(device.image));
           blog.append($("<p></p>").addClass("author").text(`${device.author} | ${new Date(device.created_on).toLocaleString()}`));
-          blog.append($("<a></a>").addClass("button").text("Read More  →").attr("href", `/devicedetail/${device.slug}`));
+          blog.append($("<a></a>").addClass("button").text("View Device  →").attr("href", `/devicedetail/${device.slug}`));
           $(".blogs").append(blog);
         }
         if (page.has_previous || page.has_next){
