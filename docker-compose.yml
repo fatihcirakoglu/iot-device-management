@@ -1,0 +1,25 @@
+version: '3'
+services:
+  web:
+    image: coelarnapp:1.0
+    build: .
+    command: >
+      sh -c "python3 manage.py makemigrations && \
+             python3 manage.py migrate && \
+             python3 manage.py runserver 0.0.0.0:8000"
+    environment:
+      - SECRETKEY=&w!-%qsbcb_7kdo^)roirk)evgkhu1vn(e8tztam-*+n1b#)=2
+      - ALLOWEDHOST=*
+      - DB_NAME=iotappdb
+      - DB_USER=iotappdbuser
+      - DB_PASSWORD=swe599.
+      - DB_HOST=localhost
+      - DB_PORT=3306
+      - EMAIL_HOST_USER=fatihcirak@gmail.com
+      - EMAIL_HOST_PASSWORD=IHJvrNcO6jYPZqGn
+    ports:
+      - "80:8000"
+
+    volumes:
+      - ./src:/app
+      - /var/run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock
