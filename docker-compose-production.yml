@@ -6,10 +6,11 @@ services:
     command: >
       sh -c "python manage.py makemigrations && \
              python manage.py migrate && \
+             python manage.py collectstatic --noinput && \
              python manage.py runserver 0.0.0.0:8000"
     environment:
       - SECRETKEY=&w!-%qsbcb_7kdo^)roirk)evgkhu1vn(e8tztam-*+n1b#)=2
-      - ALLOWEDHOST=ec2-35-173-244-221.compute-1.amazonaws.com
+      - ALLOWEDHOST=*
       - DB_NAME=iotappdb
       - DB_USER=iotappdbuser
       - DB_PASSWORD=sweswe599.
