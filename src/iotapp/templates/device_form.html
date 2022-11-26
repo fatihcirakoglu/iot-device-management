@@ -1,0 +1,19 @@
+{% extends "base.html" %} {% block title %} IOT Device Manager {% endblock title %} 
+{% block content %} {% include "header.html" %}
+  <div class="description">
+    <h2>Add New Device</h2>
+    <p>Add and monitor your devices!</p>
+  </div>
+    <br><br><br>
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }}
+            <br>
+            <div class="form-group">
+                <button class="button" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
