@@ -44,18 +44,19 @@
     <br>
     {% if user.is_authenticated %} 
       {% if not device_in_favorites %}
-        <a class="button button-green"  onclick="toggle()" data-slug="{{ device.slug }}">Add to FAV</a>
+        <a class="button button-green"  onclick="toggle()" data-slug="{{ device.slug }}">Add FAV</a>
       {% else %}
-        <a class="button button-red"  id="del" onclick="toggle()" data-slug="{{ device.slug }}">Remove from FAV</a>
+        <a class="button button-red"  id="del" onclick="toggle()" data-slug="{{ device.slug }}">Remove FAV</a>
       {% endif %} 
     {% else %}
       <a class="button button-green"  href="{% url 'login' %}">Add to FAV</a>
     {% endif %}
 
     {% if user.is_authenticated %} 
-      <a class="btn btn-info btn-lg"  href="{% url 'create_device' %}">Delete</a>
+
+      <a class="btn btn-info btn-lg"  href="{% url "device_refresh" device.slug %}">Refresh</a>
     {% else %}
-      <a class="btn btn-info btn-lg"  href="{% url 'login' %}">Delete</a>
+      <a class="btn btn-info btn-lg"  href="{% url 'login' %}">Refresh</a>
     {% endif %}
 
     {% if device.author == user %}

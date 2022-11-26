@@ -20,7 +20,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import IntegrityError
 from taggit.models import Tag
-from django.views.generic import UpdateView, CreateView
+from django.views.generic import UpdateView, CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 import datetime
@@ -105,6 +105,25 @@ def devicedetail(request, slug):
 
     return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
 
+def devicerefresh(request, slug):
+        
+    device = Device.objects.get(slug=slug)
+    snap = Snap.objects.filter(device_id=device.id).order_by('-id')
+    device.save()
+
+    if request.user.is_authenticated:
+        Favourites,_ = FavouriteDevice.objects.get_or_create(user=request.user)
+    device_in_favorites = None
+
+    if request.user.is_authenticated:
+        if device in Favourites.devices.all():
+            device_in_favorites = True
+        else:
+            device_in_favorites = False
+
+    FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
+
+    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
 
 def logoutUser(request):
     logout(request)
@@ -238,6 +257,18 @@ class DeviceCreateView(LoginRequiredMixin,CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+#class DeviceDeleteView(LoginRequiredMixin,DeleteView):
+#    model = Device
+    #fields = ['title', 'content', 'image', 'tags']
+#    template_name = 'device_confirm_delete.html'
+#    redirect_field_name = "redirect"  # added
+#    redirect_authenticated_user = True  # added
+    #Device.objects.filter(slug=slug).delete()
+    #<a class="btn btn-info btn-lg"  href="{% url "device-delete" device.slug %}">Delete</a>
+    #def form_valid(self, form):
+    #    form.instance.author = self.request.user
+    #    return super().form_valid(form)
 
 def devices_by_tag(request, slug):
     tags = Tag.objects.filter(slug=slug).values_list('name', flat=True)
