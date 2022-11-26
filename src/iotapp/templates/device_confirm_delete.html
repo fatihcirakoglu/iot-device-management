@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titletag %}{% trans "Delete 2FA device" %}{% endblock %}
+{% block content %}
+    {% trans "Two Factor Settings" as prefs_str %}
+
+    <div class="nice-padding">
+        <p>{% trans 'Do you want to delete the device?' %}</p>
+        <form method="post" action="{% url 'device_detail' pk=object.pk %}">
+            <input type="hidden" name="user_id" value="{{object.user.id}}" />
+            <a href="{% url 'device_detail' user_id=object.user.id %}" class="button">{% trans 'Cancel' %}</a>
+            <input type="submit" class="button button-secondary no" value="{% trans 'Remove device' %}">
+            {% csrf_token %}
+        </form>
+    </div>
+{% endblock %}
