@@ -24,6 +24,12 @@ from django.views.generic import UpdateView, CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 import datetime
+import logging
+from .mqtt import client
+from django.http import JsonResponse
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def default(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
@@ -123,6 +129,33 @@ def devicerefresh(request, slug):
 
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
 
+    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
+
+def devicereboot(request, slug):
+    device = Device.objects.get(slug=slug)
+    #request_data = json.loads(request.body)
+    #rc, mid = mqtt_client.publish(request_data['topic'], request_data['msg'])
+    #rc.wait_for_publish()
+    #return JsonResponse({'code': rc})
+    #FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
+    device = Device.objects.get(slug=slug)
+    snap = Snap.objects.filter(device_id=device.id).order_by('-id')
+    device.save()
+
+    if request.user.is_authenticated:
+        Favourites,_ = FavouriteDevice.objects.get_or_create(user=request.user)
+    device_in_favorites = None
+
+    if request.user.is_authenticated:
+        if device in Favourites.devices.all():
+            device_in_favorites = True
+        else:
+            device_in_favorites = False
+    
+    if request.user.is_authenticated:
+        rc, mid = client.publish("django/iot/{}".format(device.id),"Reboot")
+
+    FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
     return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
 
 def logoutUser(request):
