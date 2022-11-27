@@ -14,7 +14,7 @@ IoT Device Management Software - My Graduation Project developed in Django for S
 -	Install and create a MySQL database with credendials below.
   - DB_NAME=iotappdb
   - DB_USER=iotappdbuser
-  - DB_PASSWORD=swe573.
+  - DB_PASSWORD=swe599.
 - Go to main project folder where docker compose files reside
 - Then run: $ docker-compose -f  docker-compose.yml up
 -	Go to any explorer and view: http://localhost
