@@ -40,32 +40,6 @@
       function updateText(btn, newCount, verb) {
         $("#pTest").text(newCount);
       }
-      $(".like-btn").click(function (e) {
-        e.preventDefault();
-        var this_ = $(this);
-        var likeUrl = this_.attr("data-href");
-        if (likeUrl) {
-          $.ajax({
-            url: likeUrl,
-            method: "GET",
-            data: {},
-            success: function (data) {
-              var newLikes;
-              if (data.liked) {
-                //add one like
-                updateText(this_, data.count, data.verb);
-                $("#hid").removeClass("fa-heart-o").addClass("fa-heart");
-              } else {
-                //remove one like
-                $("#hid").removeClass("fa-heart").addClass("fa-heart-o");
-                updateText(this_, data.count, data.verb);
-              }
-            },
-            error: function (error) {
-              alert("Oops! Error Occurred");
-            },
-          });
-        }
       });
     </script>
   </body>
