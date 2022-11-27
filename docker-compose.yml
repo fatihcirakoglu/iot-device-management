@@ -1,5 +1,14 @@
 version: '3'
 services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mqttconf/config/:/mosquitto/config/:ro
+      - ./mqttconf/log/:/mosquitto/log/
+      - data:/mosquitto/data/
+    ports:
+      - 1883:1883
+      - 9001:9001
   web:
     image: iotapp:1.0
     build: .
@@ -18,20 +27,14 @@ services:
       - DB_PORT=3306
       - EMAIL_HOST_USER=fatihcirak@gmail.com
       - EMAIL_HOST_PASSWORD=IHJvrNcO6jYPZqGn
+      - MQTT_SERVER=192.168.56.102
+      - MQTT_PORT=1883
+      - MQTT_KEEPALIVE=60
     ports:
       - "80:8000"
     volumes:
       - ./src:/app
       - /var/run/mysqld/mysqld.sock:/run/mysqld/mysqld.sock
 
-  mosquitto:
-    image: eclipse-mosquitto:2
-    volumes:
-      - ./mqttconf/config/:/mosquitto/config/:ro
-      - ./mqttconf/log/:/mosquitto/log/
-      - data:/mosquitto/data/
-    ports:
-      - 1883:1883
-      - 9001:9001
 volumes:
   data: ~
