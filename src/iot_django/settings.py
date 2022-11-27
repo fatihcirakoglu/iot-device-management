@@ -99,6 +99,54 @@ DATABASES = {
 }
 
 
+""" LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handers': ['console'],
+            'level': 'DEBUG', # INFO
+            'propagate': True,
+        },
+        'iotapp': {
+            'handlers': ['console'],
+            'level': 'DEBUG',#os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        }
+    }
+}  """
+""" 
+LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'default': {
+                'format': '[DJANGO] %(levelname)s %(asctime)s %(module)s '
+                          '%(name)s.%(funcName)s:%(lineno)s: %(message)s'
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'default',
+            }
+        },
+        'loggers': {
+            '*': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True,
+            }
+        },
+    }
+ """
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -157,3 +205,9 @@ EMAIL_USE_TLS = True
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
+
+MQTT_SERVER = env('MQTT_SERVER')
+MQTT_PORT = 1883 #env('MQTT_PORT')
+MQTT_KEEPALIVE = 60 #env('MQTT_KEEPALIVE')
+MQTT_USER = ''
+MQTT_PASSWORD = ''
