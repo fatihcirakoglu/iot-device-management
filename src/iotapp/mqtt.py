@@ -25,6 +25,10 @@ def on_connect(client,useddata,flags,rc):
     else:
         print("MQTT Connection failed - Unknown | RESULT CODE: Undefined")
 
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected MQTT disconnection.")
+
 def on_message(client,userdata,message):
     print("Message received Payload: " + str(message.payload.decode("utf-8")) + " Topic: " + str(message.topic))
 
@@ -46,7 +50,7 @@ client=mqttclient.Client("MQTT")
 #client.username_pw_set(user,password=password)
 
 
-client.connect(
+client.connect_async(
     host=settings.MQTT_SERVER,
     port=settings.MQTT_PORT,
     keepalive=settings.MQTT_KEEPALIVE
@@ -55,9 +59,9 @@ client.on_connect = on_connect
 #client.on_log = on_log
 client.on_message = on_message
 client.on_publish = on_publish
+client.on_disconnect = on_disconnect
 
 client.loop_start()
-
 
 #client.subscribe("mqtt/secondcode")
 
