@@ -27,7 +27,7 @@ services:
       - DB_PORT=3306
       - EMAIL_HOST_USER=fatihcirak@gmail.com
       - EMAIL_HOST_PASSWORD=IHJvrNcO6jYPZqGn
-      - MQTT_SERVER=192.168.56.102
+      - MQTT_SERVER=35.173.244.221
       - MQTT_PORT=1883
       - MQTT_KEEPALIVE=60
     ports:
