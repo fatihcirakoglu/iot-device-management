@@ -1,3 +1,4 @@
+import time
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.contrib.auth import login,logout,authenticate
@@ -25,7 +26,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 import datetime
 import logging
-from .mqtt import client
+from .mqtt import ClientInfoObject, agentIface, ClientDict
 from django.http import JsonResponse
 
 logging.basicConfig(level=logging.INFO)
@@ -108,11 +109,24 @@ def devicedetail(request, slug):
             device_in_favorites = False
 
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
+    
+    try:
+        ClientDict[str(device.serialno)].status
+    except KeyError:
+        agentIface.subscribeTopic(agentIface.MQTT_SUBSCRIBE_TOPIC_BASE + format(device.serialno),device.serialno)
 
-    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
 
-def devicerefresh(request, slug):
-        
+    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",0)
+    time.sleep(2)
+   
+    try:
+        device.status = ClientDict[str(device.serialno)].status
+    except KeyError:
+        print('key value not found')
+
+    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno,  'status': device.status, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
+
+def devicerefresh(request, slug): 
     device = Device.objects.get(slug=slug)
     snap = Snap.objects.filter(device_id=device.id).order_by('-id')
     device.save()
@@ -128,8 +142,22 @@ def devicerefresh(request, slug):
             device_in_favorites = False
 
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
+    
+    try:
+        ClientDict[str(device.serialno)].status
+    except KeyError:
+        agentIface.subscribeTopic(agentIface.MQTT_SUBSCRIBE_TOPIC_BASE + format(device.serialno),device.serialno)
 
-    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
+
+    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",0)
+    time.sleep(2)
+   
+    try:
+        device.status = ClientDict[str(device.serialno)].status
+    except KeyError:
+        print('key value not found')
+
+    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno,  'status': device.status, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
 
 def devicereboot(request, slug):
     device = Device.objects.get(slug=slug)
@@ -153,7 +181,7 @@ def devicereboot(request, slug):
             device_in_favorites = False
     
     if request.user.is_authenticated:
-        rc, mid = client.publish("django/iot/{}".format(device.id),"Reboot")
+        agentIface.publishData(agentIface.MQTT_TOPIC_BASE + "/" + format(device.id),"Reboot",0)
 
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
     return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
@@ -272,7 +300,7 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
 
 class DeviceUpdateView(LoginRequiredMixin, UpdateView):
     model = Device
-    fields = ['title','content','image','tags']
+    fields = ['title', 'serialno', 'content', 'image', 'tags']
 
     template_name ='device_form.html'
 
@@ -282,11 +310,11 @@ class DeviceUpdateView(LoginRequiredMixin, UpdateView):
 
 class DeviceCreateView(LoginRequiredMixin,CreateView):
     model = Device
-    fields = ['title', 'content', 'image', 'tags']
+    fields = ['title', 'serialno', 'content', 'image', 'tags']
     template_name = 'device_form.html'
     redirect_field_name = "redirect"  # added
     redirect_authenticated_user = True  # added
-
+    
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)

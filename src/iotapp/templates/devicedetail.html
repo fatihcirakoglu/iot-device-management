@@ -34,7 +34,11 @@
   <div class="description">
     <h3>{{ device.title }} !!</h3>
     <p class="author">by {{ device.author }} | {{ device.created_on }}</p>
-
+    {% if device.status %}
+      <p class="author"><a class="btn btn-success">ONLINE</a></p>
+    {% else %}
+      <p class="author"><a class="btn btn-danger">OFFLINE</a></p>
+    {% endif %} 
     {% for tag in device.tags.all %}
     <a href="{% url 'devices_by_tag' tag.slug %}">
       <h3 style="display: inline;"><span class="badge badge-primary">#{{ tag.name }}</span></h3>
@@ -89,6 +93,8 @@
   {% endif %}
 
   <div class="blogs"><article class="blog"><p class="device">{{ device.content | safe }}</p></article></div>
+
+  <div class="blogs"><h4 class="author" style="padding-left: 3rem;">Device Serial Number: {{ serialno | safe }}</h4></div>
 
   <div class="blogs">
     <h1 class="title" style="padding-left: 3rem;">Users In Device #{{tags}}</h1>
