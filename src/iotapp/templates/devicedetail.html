@@ -32,10 +32,11 @@
 
 <article class="blogs">
   <div class="description">
-    <h3>{{ device.title }} !!</h3>
+    <h3>{{ device.title }}</h3>
     <p class="author">by {{ device.author }} | {{ device.created_on }}</p>
     {% if device.status %}
       <p class="author"><a class="btn btn-success">ONLINE</a></p>
+      <p class="author">Uptime: {{ device.deviceuptime }}</p>
     {% else %}
       <p class="author"><a class="btn btn-danger">OFFLINE</a></p>
     {% endif %} 
@@ -94,26 +95,93 @@
 
   <div class="blogs"><article class="blog"><p class="device">{{ device.content | safe }}</p></article></div>
 
-  <div class="blogs"><h4 class="author" style="padding-left: 3rem;">Device Serial Number: {{ serialno | safe }}</h4></div>
+  
 
   <div class="blogs">
-    <h1 class="title" style="padding-left: 3rem;">Users In Device #{{tags}}</h1>
-    {% for x in FavouritesUsers %}
-    <a>
-      <h3 style="display: inline;padding-left: 3rem;"><span class="badge badge-primary">{{ x.user }}</span></h3>
-    </a>
-    {% endfor %}
+    <h1 class="title" style="padding-left: 3rem;">Device Information #{{tags}}</h1>
+     <!-- Display the value of the "architecture" field in the HTML page -->
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;">Device Serial Number:<span style="color:darkolivegreen;font-weight:bold;" id="serialno">{{ serialno | safe }}</span></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device Architecture is: <span style="color:darkolivegreen;font-weight:bold;" id="architecture"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device OS Release: <span style="color:darkolivegreen;font-weight:bold;" id="osrelease"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device OS Buid Id: <span style="color:darkolivegreen;font-weight:bold;" id="buildid"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device OS Kernel Version: <span style="color:darkolivegreen;font-weight:bold;" id="kernelversion"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device Clock Time Format: <span style="color:darkolivegreen;font-weight:bold;" id="uptime"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device Confinement: <span style="color:darkolivegreen;font-weight:bold;" id="confinementOS"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device System Mode: <span style="color:darkolivegreen;font-weight:bold;" id="systemodeOS"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device Snap Version: <span style="color:darkolivegreen;font-weight:bold;" id="versionSys"></span></p></h4></div>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p>Device OS Virtualization Type: <span style="color:darkolivegreen;font-weight:bold;" id="Virtualization"></span></p></h4></div>
   </div>
+  
+ 
+
+  <script>
+    var jsonData = {{ device.deviceinfo|safe }};
+  
+    // Get the value of the "architecture" field
+    var architecture = jsonData.result.architecture;
+    var osrelease = jsonData.result["os-release"].id + jsonData.result["os-release"]["version-id"];
+    var buildid = jsonData.result["build-id"];
+    var kernelversion = jsonData.result["kernel-version"];
+    var uptime = jsonData.result.refresh.timer;
+    var confinementOS = jsonData.result.confinement;
+    var systemodeOS = jsonData.result["system-mode"];
+    var versionSys = jsonData.result.version;
+    var Virtualization = jsonData.result.virtualization;
+
+    // Use the value of the "architecture" field to update the HTML page
+    document.getElementById("architecture").innerHTML = architecture;
+    document.getElementById("osrelease").innerHTML = osrelease;
+    document.getElementById("buildid").innerHTML = buildid;
+    document.getElementById("kernelversion").innerHTML = kernelversion;
+    document.getElementById("uptime").innerHTML = uptime;
+    document.getElementById("confinementOS").innerHTML = confinementOS;
+    document.getElementById("systemodeOS").innerHTML = systemodeOS;
+    document.getElementById("versionSys").innerHTML = versionSys;
+    document.getElementById("Virtualization").innerHTML = Virtualization;
+  </script>
+  
+  <div class="blogs">
+    <h1 class="title" style="padding-left: 3rem;">Users In Device #{{tags}}</h1>
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p> <span style="color:darkolivegreen;font-weight:bold;" id="containery"></span></p></h4></div>
+  </div>
+
+  <script>
+    var jsonDatay = {{ device.deviceusers|safe }};
+  
+    var device_users = jsonDatay.result.map(function(result) {
+      return result.title;
+    });
+  
+    const containery = document.getElementById('containery');
+    for (let i = 0; i < device_users.length; i++) {
+      containery.innerHTML += `<h4><strong>${device_users[i]}:</strong></h4>`;
+    }
+  </script>
 
   <div class="blogs">
     <h1 class="title" style="padding-left: 3rem;">Snaps In Device #{{tags}}</h1>
-    {% for snap in snaps %}
-        <article class="blog">
-            <h3 class="title">{{ snap.name }}</h3>
-            <p class="author">by {{ snap.name }} | {{ snap.created_on }}</p>
-        </article>
-    {% endfor %}
+    <div class="blogs"><h4 class="author" style="padding-left: 3rem;"><p> <span style="color:darkolivegreen;font-weight:bold;" id="container"></span></p></h4></div>
   </div>
+
+  <script>
+    var jsonDatax = {{ device.devicesnaps|safe }};
+  
+    // Extract the titles and summaries
+    var titles = jsonDatax.result.map(function(result) {
+      return result.title;
+    });
+    var summaries = jsonDatax.result.map(function(result) {
+      return result.summary;
+    });
+    var developers = jsonDatax.result.map(function(result) {
+      return result.developer;
+    });
+
+    const container = document.getElementById('container');
+    for (let i = 0; i < titles.length; i++) {
+      container.innerHTML += `<h4><strong>${titles[i]}:</strong> ${summaries[i]}, <strong>Publisher:</strong> ${developers[i]}</h4>`;
+    }
+  </script>
   
 
 </article>

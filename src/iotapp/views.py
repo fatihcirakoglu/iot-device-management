@@ -95,7 +95,6 @@ def fetch_device(request):
 def devicedetail(request, slug):
         
     device = Device.objects.get(slug=slug)
-    snap = Snap.objects.filter(device_id=device.id).order_by('-id')
     device.save()
 
     if request.user.is_authenticated:
@@ -111,24 +110,45 @@ def devicedetail(request, slug):
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
     
     try:
-        ClientDict[str(device.serialno)].status
+        ClientDict[str(device.serialno)].status = 0
     except KeyError:
         agentIface.subscribeTopic(agentIface.MQTT_SUBSCRIBE_TOPIC_BASE + format(device.serialno),device.serialno)
+        ClientDict[str(device.serialno)].status = 0
 
-
-    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",0)
+    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",2)
     time.sleep(2)
    
     try:
         device.status = ClientDict[str(device.serialno)].status
     except KeyError:
         print('key value not found')
+        
+    if device.status:
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"getuserinfo",2)
+        time.sleep(2)
+        device.deviceusers = ClientDict[str(device.serialno)].deviceusers
+        device.save()   
 
-    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno,  'status': device.status, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"getsysteminfo",2)
+        time.sleep(2)
+        device.deviceinfo = ClientDict[str(device.serialno)].deviceinfo
+        device.save()   
+
+
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"getsnapinfo",2)
+        time.sleep(2)
+        device.devicesnaps = ClientDict[str(device.serialno)].devicesnaps
+        device.save()   
+
+
+        device.deviceuptime = ClientDict[str(device.serialno)].deviceuptime
+        device.save()   
+    print("Fatih1:" + device.deviceinfo)
+    print("Fatih2:" + device.devicesnaps)
+    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno, 'status': device.status, 'deviceuptime': device.deviceuptime, 'devicesnaps': device.devicesnaps,  'deviceusers': device.deviceusers, 'deviceinfo': device.deviceinfo, 'device_in_favorites': device_in_favorites,"FavouritesUsers":FavouritesUsers})
 
 def devicerefresh(request, slug): 
     device = Device.objects.get(slug=slug)
-    snap = Snap.objects.filter(device_id=device.id).order_by('-id')
     device.save()
 
     if request.user.is_authenticated:
@@ -144,20 +164,39 @@ def devicerefresh(request, slug):
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
     
     try:
-        ClientDict[str(device.serialno)].status
+        ClientDict[str(device.serialno)].status = 0
     except KeyError:
         agentIface.subscribeTopic(agentIface.MQTT_SUBSCRIBE_TOPIC_BASE + format(device.serialno),device.serialno)
+        ClientDict[str(device.serialno)].status = 0
 
-
-    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",0)
+    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",2)
     time.sleep(2)
    
     try:
         device.status = ClientDict[str(device.serialno)].status
     except KeyError:
         print('key value not found')
+        
+    if device.status:
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"getuserinfo",2)
+        time.sleep(2)
+        device.deviceusers = ClientDict[str(device.serialno)].deviceusers
+        device.save()   
 
-    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno,  'status': device.status, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"getsysteminfo",2)
+        time.sleep(2)
+        device.deviceinfo = ClientDict[str(device.serialno)].deviceinfo
+        device.save()   
+
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"getsnapinfo",2)
+        time.sleep(2)
+        device.devicesnaps = ClientDict[str(device.serialno)].devicesnaps
+        device.save()   
+
+        device.deviceuptime = ClientDict[str(device.serialno)].deviceuptime
+        device.save()   
+
+    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno, 'status': device.status, 'deviceuptime': device.deviceuptime, 'devicesnaps': device.devicesnaps,  'deviceusers': device.deviceusers, 'deviceinfo': device.deviceinfo, 'device_in_favorites': device_in_favorites,"FavouritesUsers":FavouritesUsers})
 
 def devicereboot(request, slug):
     device = Device.objects.get(slug=slug)
@@ -167,7 +206,6 @@ def devicereboot(request, slug):
     #return JsonResponse({'code': rc})
     #FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
     device = Device.objects.get(slug=slug)
-    snap = Snap.objects.filter(device_id=device.id).order_by('-id')
     device.save()
 
     if request.user.is_authenticated:
@@ -184,7 +222,7 @@ def devicereboot(request, slug):
         agentIface.publishData(agentIface.MQTT_TOPIC_BASE + "/" + format(device.id),"Reboot",0)
 
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
-    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,'snaps' : snap,"FavouritesUsers":FavouritesUsers})
+    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,"FavouritesUsers":FavouritesUsers})
 
 def logoutUser(request):
     logout(request)

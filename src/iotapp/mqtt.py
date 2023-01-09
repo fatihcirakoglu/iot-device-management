@@ -11,6 +11,11 @@ class ClientInfoObject(object):
     def __init__(self,id):
         self.id = id
         self.status = 0
+        self.deviceinfo = ""
+        self.deviceuptime = ""
+        self.deviceusers = ""
+        self.devicesnaps = ""
+
     def getId(self):
         return self.id
 
@@ -71,8 +76,8 @@ class MqttCommunication(object):
     def loop(self):
         while True:
             self.client.loop(10)
-            print('LOOPING:')
-            time.sleep(1000)
+            #print('LOOPING:')
+            #time.sleep(1000)
 
     def disconnectHost(self):
         self.client.disconnect()
@@ -132,16 +137,31 @@ class MqttCommunication(object):
 
     # The callback for when a PUBLISH message is received from the server.
     def mqtt_on_message(self , client, userdata, msg):
-        logging.info("Message received " + msg.topic+" : "+str(msg.payload))
         json_tree = json.loads(msg.payload)
-        print(json_tree)
+        logging.info("Message received " + msg.topic+" with command: " + json_tree.get('msgCode'))
+        #print(json_tree)
         if json_tree.get('msgCode') == "heartbeat":
-            if json_tree.get('data') == "online":
+            if json_tree.get('data') != '':
                 ClientDict[json_tree.get('id')].status = 1
+                ClientDict[json_tree.get('id')].deviceuptime = str(json_tree.get('data'))
                 logging.debug("device is online")
             else:
                 ClientDict[json_tree.get('id')].status = 0
                 logging.debug("device is offline")
+        
+        if json_tree.get('msgCode') == "getsysteminfo-ret":
+            data_out= json_tree.get('data')
+            #print(data_out)
+            ClientDict[json_tree.get('id')].deviceinfo = data_out
+        
+        if json_tree.get('msgCode') == "getuserinfo-ret":
+            data_out= json_tree.get('data')
+            ClientDict[json_tree.get('id')].deviceusers = data_out
+            #print(data_out)
+
+        if json_tree.get('msgCode') == "getsnapinfo-ret":
+            data_out= json_tree.get('data')
+            ClientDict[json_tree.get('id')].devicesnaps = gzdeflate(data_out)
                 
     def mqtt_on_disconnect(self, client, userdata, rc):
         if rc != 0:
