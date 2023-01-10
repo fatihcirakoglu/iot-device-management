@@ -143,8 +143,7 @@ def devicedetail(request, slug):
 
         device.deviceuptime = ClientDict[str(device.serialno)].deviceuptime
         device.save()   
-    print("Fatih1:" + device.deviceinfo)
-    print("Fatih2:" + device.devicesnaps)
+
     return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno, 'status': device.status, 'deviceuptime': device.deviceuptime, 'devicesnaps': device.devicesnaps,  'deviceusers': device.deviceusers, 'deviceinfo': device.deviceinfo, 'device_in_favorites': device_in_favorites,"FavouritesUsers":FavouritesUsers})
 
 def devicerefresh(request, slug): 
@@ -200,12 +199,6 @@ def devicerefresh(request, slug):
 
 def devicereboot(request, slug):
     device = Device.objects.get(slug=slug)
-    #request_data = json.loads(request.body)
-    #rc, mid = mqtt_client.publish(request_data['topic'], request_data['msg'])
-    #rc.wait_for_publish()
-    #return JsonResponse({'code': rc})
-    #FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
-    device = Device.objects.get(slug=slug)
     device.save()
 
     if request.user.is_authenticated:
@@ -217,12 +210,28 @@ def devicereboot(request, slug):
             device_in_favorites = True
         else:
             device_in_favorites = False
-    
-    if request.user.is_authenticated:
-        agentIface.publishData(agentIface.MQTT_TOPIC_BASE + "/" + format(device.id),"Reboot",0)
 
     FavouritesUsers=FavouriteDevice.objects.filter(Q(devices=device.id) | Q(devices=device.id))
-    return render(request, 'devicedetail.html', {'device': device, 'device_in_favorites': device_in_favorites,"FavouritesUsers":FavouritesUsers})
+    
+    try:
+        ClientDict[str(device.serialno)].status = 0
+    except KeyError:
+        agentIface.subscribeTopic(agentIface.MQTT_SUBSCRIBE_TOPIC_BASE + format(device.serialno),device.serialno)
+        ClientDict[str(device.serialno)].status = 0
+
+    agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"heartbeat",2)
+    time.sleep(2)
+   
+    try:
+        device.status = ClientDict[str(device.serialno)].status
+    except KeyError:
+        print('key value not found')
+        
+    if device.status:
+        agentIface.publishData(agentIface.MQTT_PUBLISH_TOPIC_BASE + format(device.serialno),"reboot",2)
+        time.sleep(2)
+
+    return render(request, 'devicedetail.html', {'device': device, 'serialno': device.serialno, 'status': device.status, 'deviceuptime': device.deviceuptime, 'devicesnaps': device.devicesnaps,  'deviceusers': device.deviceusers, 'deviceinfo': device.deviceinfo, 'device_in_favorites': device_in_favorites,"FavouritesUsers":FavouritesUsers})
 
 def logoutUser(request):
     logout(request)

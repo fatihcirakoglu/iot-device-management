@@ -161,7 +161,10 @@ class MqttCommunication(object):
 
         if json_tree.get('msgCode') == "getsnapinfo-ret":
             data_out= json_tree.get('data')
-            ClientDict[json_tree.get('id')].devicesnaps = gzdeflate(data_out)
+            ClientDict[json_tree.get('id')].devicesnaps = data_out
+
+        if json_tree.get('msgCode') == "reboot-ret":
+            print("Device: " + json_tree.get('id') + " is rebooted")
                 
     def mqtt_on_disconnect(self, client, userdata, rc):
         if rc != 0:
