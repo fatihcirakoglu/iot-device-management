@@ -6,7 +6,7 @@
     {% for device in devices %}
         <article class="blog">
             <h3 class="title">{{ device.title }}</h3>
-            <a href="{% url 'device_detail' device.slug %}" class="button">Goto Space →</a>
+            <a href="{% url 'device_detail' device.slug %}" class="button">Goto Device →</a>
         </article>
     {% endfor %}
 </div>

@@ -14,6 +14,7 @@ urlpatterns = [
     #path('devicedetail/<slug:slug>/update/', views.DeviceDeleteView.as_view(), name='device-delete'),
     path('devicedetail/<slug:slug>/refresh/', views.devicerefresh, name='device_refresh'),
     path('devicedetail/<slug:slug>/reboot/', views.devicereboot, name='device_reboot'),
+    path('devicedetail/<slug:slug>/Favourites', views.Favorites, name='Favorites'),
     path('devicedetail/<slug:slug>/', views.devicedetail, name='device_detail'),
     path('devicedetail/<slug:slug>/update/', DeviceUpdateView.as_view(), name='device-update'),
     path('fetch_device', views.fetch_device, name="fetch_device"),
